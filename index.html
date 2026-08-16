@@ -3,6 +3,20 @@
 <head>
     <meta charset="utf-8">
 
+<!-- CLOAKER TIKTOK -->
+<script>
+(function(){
+  var WHITE = "https://www.tudogostoso.com.br/categorias/1000-bolos-e-tortas-doces";
+  var SB_URL = "https://ldyhodwdhavrgyooukpi.supabase.co";
+  var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkeWhvZHdkaGF2cmd5b291a3BpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQxMDUyNCwiZXhwIjoyMTAxOTg2NTI0fQ.JvEtOi46gaL5fAFk8XnUUeEyPTibpC79NwPGMF8SvdY";
+  var BOT_UA = ["bytespider","tiktok","bytedance","baiduspider","googlebot","bingbot","facebookexternalhit","facebot","meta-externalagent","applebot","yandexbot","slurp","duckduckbot","linkedinbot","twitterbot","discordbot","telegrambot","python-requests","python-urllib","curl/","wget/","headlesschrome","phantomjs","selenium","webdriver","puppeteer","playwright","scrapy","axios","node-fetch","postman"];
+  function isBot(){var ua=(navigator.userAgent||"").toLowerCase();for(var i=0;i<BOT_UA.length;i++){if(ua.indexOf(BOT_UA[i])!==-1)return true;}if(navigator.webdriver)return true;return false;}
+  function log(result,reason){try{fetch(SB_URL+"/rest/v1/cloaker_logs",{method:"POST",headers:{"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY},body:JSON.stringify({user_agent:navigator.userAgent,result:result,reason:reason,country:"BR",ip:null})});}catch(e){}}
+  if(isBot()){log("BOT","Bot TikTok/rastreador detectado");window.location.replace(WHITE);return;}
+  log("REAL","Lead real - TikTok");
+})();
+</script>
+
 <!-- UTM Persistence: captura e mantém UTMs em toda a navegação -->
 <script>
 (function() {
