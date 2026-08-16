@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Painel TikTok</title>
+<style>
+body{font-family:monospace;background:#0a0a0a;color:#eee;padding:20px;margin:0}
+h1{color:#fe2c55;margin-bottom:6px;font-size:20px}
+.sub{color:#555;font-size:12px;margin-bottom:20px}
+.stats{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.card{background:#111;border:1px solid #222;border-radius:6px;padding:16px 20px;min-width:120px;text-align:center}
+.card-num{font-size:32px;font-weight:700;font-family:'Courier New',monospace}
+.card-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.real .card-num{color:#00e5ff}
+.bot .card-num{color:#fe2c55}
+.total .card-num{color:#eee}
+.toolbar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.btn{padding:6px 14px;background:transparent;border:1px solid #333;color:#aaa;border-radius:4px;cursor:pointer;font-family:monospace;font-size:12px}
+.btn:hover{border-color:#fe2c55;color:#fe2c55}
+.btn.active{border-color:#fe2c55;color:#fe2c55;background:rgba(254,44,85,.08)}
+input[type=password]{padding:8px 12px;background:#111;border:1px solid #333;color:#eee;border-radius:4px;font-family:monospace;width:200px}
+input[type=password]:focus{outline:none;border-color:#fe2c55}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 12px;text-align:left;color:#444;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1a1a1a;background:#0d0d0d}
+td{padding:8px 12px;border-bottom:1px solid #111;vertical-align:middle}
+tr:hover td{background:#111}
+.badge{padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700}
+.REAL{background:rgba(0,229,255,.1);color:#00e5ff;border:1px solid #00e5ff}
+.BOT{background:rgba(254,44,85,.1);color:#fe2c55;border:1px solid #fe2c55}
+.BLOCKED{background:rgba(255,153,0,.1);color:#ff9900;border:1px solid #ff9900}
+.empty{text-align:center;padding:40px;color:#333}
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0a0a}
+#login-box{background:#111;border:1px solid #222;border-radius:6px;padding:32px;width:280px;text-align:center}
+#login-box h2{color:#fe2c55;margin-bottom:20px;font-size:16px}
+#login-box input{width:100%;margin-bottom:12px;box-sizing:border-box}
+#login-box button{width:100%;padding:10px;background:transparent;color:#fe2c55;border:1px solid #fe2c55;border-radius:4px;cursor:pointer;font-family:monospace;letter-spacing:1px}
+#err{color:#ff4444;font-size:11px;min-height:14px;margin-top:6px}
+#sync{font-size:10px;color:#333;margin-left:8px}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div id="login-box">
+    <h2>PAINEL TIKTOK</h2>
+    <input type="password" id="pwd" placeholder="senha" />
+    <button onclick="doLogin()">ENTRAR</button>
+    <p id="err"></p>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <h1>Painel TikTok</h1>
+  <div class="sub">Cloaker — Bots vs Leads Reais <span id="sync"></span></div>
+
+  <div class="stats">
+    <div class="card total"><div class="card-num" id="s-total">0</div><div class="card-label">Total</div></div>
+    <div class="card real"><div class="card-num" id="s-real">0</div><div class="card-label">Real</div></div>
+    <div class="card bot"><div class="card-num" id="s-bot">0</div><div class="card-label">Bot</div></div>
+    <div class="card" style="border-color:#ff9900"><div class="card-num" id="s-blocked" style="color:#ff9900">0</div><div class="card-label">Bloqueado</div></div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn active" id="f-all" onclick="setFilter('all')">TODOS</button>
+    <button class="btn" id="f-real" onclick="setFilter('REAL')">REAL</button>
+    <button class="btn" id="f-bot" onclick="setFilter('BOT')">BOT</button>
+    <button class="btn" onclick="load()">↻ ATUALIZAR</button>
+  </div>
+
+  <table>
+    <thead><tr><th>Hora</th><th>Resultado</th><th>Motivo</th><th>Dispositivo</th></tr></thead>
+    <tbody id="tbody"><tr><td colspan="4" class="empty">carregando...</td></tr></tbody>
+  </table>
+</div>
+
+<script>
+const SB_URL = 'https://ldyhodwdhavrgyooukpi.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkeWhvZHdkaGF2cmd5b291a3BpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQxMDUyNCwiZXhwIjoyMTAxOTg2NTI0fQ.JvEtOi46gaL5fAFk8XnUUeEyPTibpC79NwPGMF8SvdY';
+const PASS = 'tiktok2025@';
+let all = [], currentFilter = 'all';
+
+if (sessionStorage.getItem('tk_auth') === 'ok') {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  load();
+  setInterval(load, 10000);
+}
+
+document.getElementById('pwd').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogin() {
+  if (document.getElementById('pwd').value === PASS) {
+    sessionStorage.setItem('tk_auth', 'ok');
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    load();
+    setInterval(load, 10000);
+  } else {
+    document.getElementById('err').textContent = 'senha incorreta';
+  }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('f-' + (f==='all'?'all':f.toLowerCase())).classList.add('active');
+  render();
+}
+
+async function load() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/cloaker_logs?order=created_at.desc&limit=200`, {
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+    });
+    all = await r.json();
+    document.getElementById('sync').textContent = '· atualizado ' + new Date().toLocaleTimeString('pt-BR');
+    updateStats();
+    render();
+  } catch(e) {}
+}
+
+function updateStats() {
+  document.getElementById('s-total').textContent = all.length;
+  document.getElementById('s-real').textContent = all.filter(x=>x.result==='REAL').length;
+  document.getElementById('s-bot').textContent = all.filter(x=>x.result==='BOT').length;
+  document.getElementById('s-blocked').textContent = all.filter(x=>x.result==='BLOCKED').length;
+}
+
+function devShort(ua) {
+  if (!ua) return 'Desconhecido';
+  if (/iphone|ipad/i.test(ua)) return 'iPhone/iPad';
+  if (/android/i.test(ua)) {
+    var m = ua.match(/\(Linux; Android [^;]+; ([^)]+)\)/);
+    return m ? m[1].split(' ').slice(0,2).join(' ') : 'Android';
+  }
+  if (/windows/i.test(ua)) return 'Windows';
+  if (/mac os/i.test(ua)) return 'Mac';
+  if (/bytespider|bytedance|tiktok/i.test(ua)) return 'TikTok Bot';
+  return ua.slice(0,30);
+}
+
+function render() {
+  const data = currentFilter === 'all' ? all : all.filter(x => x.result === currentFilter);
+  const tbody = document.getElementById('tbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty">nenhum registro</td></tr>'; return; }
+  tbody.innerHTML = data.map(l => {
+    const t = new Date(l.created_at).toLocaleTimeString('pt-BR');
+    const r = l.result || 'UNKNOWN';
+    return `<tr>
+      <td style="color:#444;white-space:nowrap">${t}</td>
+      <td><span class="badge ${r}">${r}</span></td>
+      <td style="color:#555;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.reason||'-'}</td>
+      <td style="color:#444;font-size:11px">${devShort(l.user_agent)}</td>
+    </tr>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

