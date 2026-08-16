@@ -87,6 +87,11 @@
   status = 200
 
 [[redirects]]
+  from = "/comp"
+  to = "/.netlify/functions/comprovantes-viewer"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
